@@ -1,5 +1,5 @@
 # ============== CONFIGURATION ==============
-$DEBUG = $true  # Mettre $false pour désactiver les logs
+$DEBUG = $false
 
 $AppData = $env:APPDATA
 $LocalPath = Join-Path $AppData "Microsoft\CLRCache"    # dossier pas suspect
