@@ -1,4 +1,3 @@
 # RickRoll OnStartup
-This is mmy projet, do not executing powershell file.
 
-Uninstall : SWONN
+[Uninstall Script](https://github.com/delete-user-56/RickRoll_OnStartup/blob/main/UninstallRR.ps1)
