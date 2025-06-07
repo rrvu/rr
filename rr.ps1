@@ -15,6 +15,18 @@ if ($MyInvocation.MyCommand.Path) {
 $VideoURL = "https://github.com/delete-user-56/RickRoll_OnStartup/raw/main/RickRoll.mp4"
 $LogFile = Join-Path $ScriptDir "install.log"
 # ===========================================
+if (-not (Test-Path $ScriptDir)) {
+    New-Item -ItemType Directory -Path $ScriptDir -Force | Out-Null
+}
+
+function Log {
+    param ($msg)
+    if ($DEBUG) {
+        $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+        Add-Content -Path $LogFile -Value "[$timestamp] $msg"
+    }
+}
+
 
 function Log {
     param ($msg)
